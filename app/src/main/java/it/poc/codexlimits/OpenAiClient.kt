@@ -15,6 +15,8 @@ object OpenAiClient {
     const val CLIENT_ID = "app_EMoamEEZ73f0CkXaXp7hrann"
     const val VERIFY_URL = "$ISSUER/codex/device"
     private const val USAGE_URL = "https://chatgpt.com/backend-api/wham/usage"
+    private const val FIVE_HOURS_SECONDS = 5L * 60L * 60L
+    private const val ONE_WEEK_SECONDS = 7L * 24L * 60L * 60L
 
     data class DeviceCode(
         val deviceAuthId: String,
@@ -36,6 +38,12 @@ object OpenAiClient {
         val weekRemaining: Int,
         val shortResetEpoch: Long,
         val weekResetEpoch: Long
+    )
+
+    private data class UsageWindow(
+        val remaining: Int,
+        val resetEpoch: Long,
+        val windowSeconds: Long
     )
 
     data class HttpResult(val status: Int, val body: String)
@@ -114,21 +122,62 @@ object OpenAiClient {
         val root = JSONObject(response.body)
         val rate = root.optJSONObject("rate_limit")
             ?: error("La risposta usage non contiene rate_limit")
-        val primary = rate.optJSONObject("primary_window")
-            ?: error("La risposta usage non contiene primary_window")
-        val secondary = rate.optJSONObject("secondary_window")
-            ?: error("La risposta usage non contiene secondary_window")
 
-        val shortUsed = primary.optInt("used_percent", -1)
-        val weekUsed = secondary.optInt("used_percent", -1)
-        require(shortUsed >= 0 && weekUsed >= 0) { "Percentuali usage non valide" }
+        val primaryJson = rate.optJSONObject("primary_window")
+        val secondaryJson = rate.optJSONObject("secondary_window")
+        if (primaryJson == null && secondaryJson == null) {
+            error("La risposta usage non contiene finestre di limite")
+        }
+
+        val primary = primaryJson?.let(::parseUsageWindow)
+        val secondary = secondaryJson?.let(::parseUsageWindow)
+        val windows = listOfNotNull(primary, secondary)
+
+        // Non assumiamo che primary significhi sempre 5h e secondary sempre settimana.
+        // Il backend espone la durata: la usiamo per identificare la finestra corretta.
+        var shortWindow = windows
+            .filter { it.windowSeconds in 1..(24L * 60L * 60L) }
+            .minByOrNull { kotlin.math.abs(it.windowSeconds - FIVE_HOURS_SECONDS) }
+        var weekWindow = windows
+            .filter { it.windowSeconds >= 2L * 24L * 60L * 60L }
+            .minByOrNull { kotlin.math.abs(it.windowSeconds - ONE_WEEK_SECONDS) }
+
+        // Compatibilità difensiva se il backend omette limit_window_seconds.
+        if (shortWindow == null && weekWindow == null) {
+            shortWindow = primary
+            weekWindow = secondary
+        } else {
+            if (shortWindow == null && primary != weekWindow && primary?.windowSeconds == 0L) {
+                shortWindow = primary
+            }
+            if (weekWindow == null && secondary != shortWindow && secondary?.windowSeconds == 0L) {
+                weekWindow = secondary
+            }
+        }
 
         return UsageData(
             plan = root.optString("plan_type", "?"),
-            shortRemaining = (100 - shortUsed).coerceIn(0, 100),
-            weekRemaining = (100 - weekUsed).coerceIn(0, 100),
-            shortResetEpoch = primary.optLong("reset_at", 0L),
-            weekResetEpoch = secondary.optLong("reset_at", 0L)
+            shortRemaining = shortWindow?.remaining ?: -1,
+            weekRemaining = weekWindow?.remaining ?: -1,
+            shortResetEpoch = shortWindow?.resetEpoch ?: 0L,
+            weekResetEpoch = weekWindow?.resetEpoch ?: 0L
+        )
+    }
+
+    private fun parseUsageWindow(json: JSONObject): UsageWindow {
+        val used = when {
+            json.has("used_percent") -> json.optDouble("used_percent", -1.0)
+            json.has("usedPercent") -> json.optDouble("usedPercent", -1.0)
+            else -> -1.0
+        }
+        require(used >= 0.0) { "Percentuale usage non valida" }
+
+        val windowSeconds = json.optLong("limit_window_seconds", 0L)
+        val resetEpoch = json.optLong("reset_at", 0L)
+        return UsageWindow(
+            remaining = (100.0 - used).coerceIn(0.0, 100.0).toInt(),
+            resetEpoch = resetEpoch,
+            windowSeconds = windowSeconds
         )
     }
 

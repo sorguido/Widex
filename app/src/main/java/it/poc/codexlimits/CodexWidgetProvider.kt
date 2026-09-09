@@ -32,34 +32,36 @@ class CodexWidgetProvider : AppWidgetProvider() {
             val usage = UsageRepository.readCached(context)
 
             if (!authenticated) {
-                views.setTextViewText(R.id.widget_short_value, "—")
-                views.setProgressBar(R.id.widget_short_bar, 100, 0, false)
-                views.setTextViewText(R.id.widget_short_reset, "Accesso richiesto")
-                views.setTextViewText(R.id.widget_week_value, "—")
-                views.setProgressBar(R.id.widget_week_bar, 100, 0, false)
-                views.setTextViewText(R.id.widget_week_reset, "Apri Widex")
+                setUnavailable(views, shortWindow = true, message = "Accesso richiesto")
+                setUnavailable(views, shortWindow = false, message = "Apri Widex")
                 views.setTextViewText(R.id.widget_updated, "")
             } else if (usage == null) {
-                views.setTextViewText(R.id.widget_short_value, "—")
-                views.setProgressBar(R.id.widget_short_bar, 100, 0, false)
-                views.setTextViewText(R.id.widget_short_reset, "Reset —")
-                views.setTextViewText(R.id.widget_week_value, "—")
-                views.setProgressBar(R.id.widget_week_bar, 100, 0, false)
-                views.setTextViewText(R.id.widget_week_reset, "Reset —")
+                setUnavailable(views, shortWindow = true, message = "Tocca ↻")
+                setUnavailable(views, shortWindow = false, message = "Tocca ↻")
                 views.setTextViewText(R.id.widget_updated, "Tocca Aggiorna")
             } else {
-                views.setTextViewText(R.id.widget_short_value, "${usage.shortRemaining}%")
-                views.setProgressBar(R.id.widget_short_bar, 100, usage.shortRemaining, false)
-                views.setTextViewText(
-                    R.id.widget_short_reset,
-                    "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
-                )
-                views.setTextViewText(R.id.widget_week_value, "${usage.weekRemaining}%")
-                views.setProgressBar(R.id.widget_week_bar, 100, usage.weekRemaining, false)
-                views.setTextViewText(
-                    R.id.widget_week_reset,
-                    "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
-                )
+                if (usage.shortRemaining >= 0) {
+                    views.setTextViewText(R.id.widget_short_value, "${usage.shortRemaining}%")
+                    views.setProgressBar(R.id.widget_short_bar, 100, usage.shortRemaining, false)
+                    views.setTextViewText(
+                        R.id.widget_short_reset,
+                        "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
+                    )
+                } else {
+                    setUnavailable(views, shortWindow = true, message = "Non fornito da OpenAI")
+                }
+
+                if (usage.weekRemaining >= 0) {
+                    views.setTextViewText(R.id.widget_week_value, "${usage.weekRemaining}%")
+                    views.setProgressBar(R.id.widget_week_bar, 100, usage.weekRemaining, false)
+                    views.setTextViewText(
+                        R.id.widget_week_reset,
+                        "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
+                    )
+                } else {
+                    setUnavailable(views, shortWindow = false, message = "Non fornito da OpenAI")
+                }
+
                 views.setTextViewText(
                     R.id.widget_updated,
                     "Agg. ${DisplayFormat.updatedAt(usage.updatedAtMillis)}"
@@ -87,6 +89,18 @@ class CodexWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_refresh, refreshPendingIntent)
 
             manager.updateAppWidget(widgetId, views)
+        }
+
+        private fun setUnavailable(views: RemoteViews, shortWindow: Boolean, message: String) {
+            if (shortWindow) {
+                views.setTextViewText(R.id.widget_short_value, "—")
+                views.setProgressBar(R.id.widget_short_bar, 100, 0, false)
+                views.setTextViewText(R.id.widget_short_reset, message)
+            } else {
+                views.setTextViewText(R.id.widget_week_value, "—")
+                views.setProgressBar(R.id.widget_week_bar, 100, 0, false)
+                views.setTextViewText(R.id.widget_week_reset, message)
+            }
         }
     }
 

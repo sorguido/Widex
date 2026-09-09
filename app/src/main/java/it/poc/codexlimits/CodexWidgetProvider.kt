@@ -7,27 +7,19 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import java.text.DateFormat
-import java.util.Date
+import java.util.concurrent.Executors
 
 class CodexWidgetProvider : AppWidgetProvider() {
-
-    override fun onUpdate(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
-    ) {
-        appWidgetIds.forEach { updateOne(context, appWidgetManager, it) }
-    }
-
     companion object {
-        private const val PREFS = "codex_stats"
+        private const val ACTION_REFRESH = "it.poc.codexlimits.ACTION_REFRESH"
+        private val executor = Executors.newSingleThreadExecutor()
 
         fun updateAll(context: Context) {
             val manager = AppWidgetManager.getInstance(context)
             val component = ComponentName(context, CodexWidgetProvider::class.java)
-            val ids = manager.getAppWidgetIds(component)
-            ids.forEach { updateOne(context, manager, it) }
+            manager.getAppWidgetIds(component).forEach {
+                updateOne(context, manager, it)
+            }
         }
 
         private fun updateOne(
@@ -35,40 +27,105 @@ class CodexWidgetProvider : AppWidgetProvider() {
             manager: AppWidgetManager,
             widgetId: Int
         ) {
-            val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            val shortRemaining = prefs.getInt("short_remaining", -1)
-            val weekRemaining = prefs.getInt("week_remaining", -1)
-            val updatedAt = prefs.getLong("updated_at", 0L)
-
             val views = RemoteViews(context.packageName, R.layout.codex_widget)
-            views.setTextViewText(
-                R.id.widget_short,
-                if (shortRemaining >= 0) "5h     $shortRemaining%" else "5h     —"
-            )
-            views.setTextViewText(
-                R.id.widget_week,
-                if (weekRemaining >= 0) "Week   $weekRemaining%" else "Week   —"
-            )
+            val authenticated = SecureAuthStore.hasCredentials(context)
+            val usage = UsageRepository.readCached(context)
 
-            val updated = if (updatedAt > 0L) {
-                "Agg. " + DateFormat.getDateTimeInstance(
-                    DateFormat.SHORT,
-                    DateFormat.SHORT
-                ).format(Date(updatedAt))
+            if (!authenticated) {
+                views.setTextViewText(R.id.widget_short_value, "—")
+                views.setProgressBar(R.id.widget_short_bar, 100, 0, false)
+                views.setTextViewText(R.id.widget_short_reset, "Accesso richiesto")
+                views.setTextViewText(R.id.widget_week_value, "—")
+                views.setProgressBar(R.id.widget_week_bar, 100, 0, false)
+                views.setTextViewText(R.id.widget_week_reset, "Apri Widex")
+                views.setTextViewText(R.id.widget_updated, "")
+            } else if (usage == null) {
+                views.setTextViewText(R.id.widget_short_value, "—")
+                views.setProgressBar(R.id.widget_short_bar, 100, 0, false)
+                views.setTextViewText(R.id.widget_short_reset, "Reset —")
+                views.setTextViewText(R.id.widget_week_value, "—")
+                views.setProgressBar(R.id.widget_week_bar, 100, 0, false)
+                views.setTextViewText(R.id.widget_week_reset, "Reset —")
+                views.setTextViewText(R.id.widget_updated, "Tocca Aggiorna")
             } else {
-                "Apri app per aggiornare"
+                views.setTextViewText(R.id.widget_short_value, "${usage.shortRemaining}%")
+                views.setProgressBar(R.id.widget_short_bar, 100, usage.shortRemaining, false)
+                views.setTextViewText(
+                    R.id.widget_short_reset,
+                    "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
+                )
+                views.setTextViewText(R.id.widget_week_value, "${usage.weekRemaining}%")
+                views.setProgressBar(R.id.widget_week_bar, 100, usage.weekRemaining, false)
+                views.setTextViewText(
+                    R.id.widget_week_reset,
+                    "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
+                )
+                views.setTextViewText(
+                    R.id.widget_updated,
+                    "Agg. ${DisplayFormat.updatedAt(usage.updatedAtMillis)}"
+                )
             }
-            views.setTextViewText(R.id.widget_updated, updated)
 
-            val intent = Intent(context, MainActivity::class.java)
-            val pending = PendingIntent.getActivity(
+            val openIntent = Intent(context, MainActivity::class.java)
+            val openPendingIntent = PendingIntent.getActivity(
                 context,
-                0,
-                intent,
+                10,
+                openIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            views.setOnClickPendingIntent(R.id.widget_root, pending)
+            views.setOnClickPendingIntent(R.id.widget_root, openPendingIntent)
+
+            val refreshIntent = Intent(context, CodexWidgetProvider::class.java).apply {
+                action = ACTION_REFRESH
+            }
+            val refreshPendingIntent = PendingIntent.getBroadcast(
+                context,
+                11,
+                refreshIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.widget_refresh, refreshPendingIntent)
+
             manager.updateAppWidget(widgetId, views)
+        }
+    }
+
+    override fun onEnabled(context: Context) {
+        super.onEnabled(context)
+        RefreshScheduler.schedule(context)
+    }
+
+    override fun onUpdate(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetIds: IntArray
+    ) {
+        appWidgetIds.forEach { updateOne(context, appWidgetManager, it) }
+        RefreshScheduler.schedule(context)
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action != ACTION_REFRESH) {
+            super.onReceive(context, intent)
+            return
+        }
+
+        val manager = AppWidgetManager.getInstance(context)
+        val component = ComponentName(context, CodexWidgetProvider::class.java)
+        manager.getAppWidgetIds(component).forEach { widgetId ->
+            val views = RemoteViews(context.packageName, R.layout.codex_widget)
+            views.setTextViewText(R.id.widget_updated, "Aggiornamento…")
+            manager.partiallyUpdateAppWidget(widgetId, views)
+        }
+
+        val pendingResult = goAsync()
+        executor.execute {
+            try {
+                UsageRepository.refresh(context.applicationContext)
+                updateAll(context.applicationContext)
+            } finally {
+                pendingResult.finish()
+            }
         }
     }
 }

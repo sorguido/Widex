@@ -340,25 +340,37 @@ class MainActivity : Activity() {
 
     private fun renderUsage(usage: UsageRepository.CachedUsage?) {
         if (usage == null) {
-            shortPercent.text = "—"
-            weekPercent.text = "—"
-            shortBar.progress = 0
-            weekBar.progress = 0
-            shortReset.text = "Reset —"
-            weekReset.text = "Reset —"
+            renderUnavailable(shortPercent, shortBar, shortReset)
+            renderUnavailable(weekPercent, weekBar, weekReset)
             updatedAt.text = "Aggiornato: —"
             planText.text = ""
             return
         }
 
-        shortPercent.text = "${usage.shortRemaining}%"
-        weekPercent.text = "${usage.weekRemaining}%"
-        shortBar.progress = usage.shortRemaining
-        weekBar.progress = usage.weekRemaining
-        shortReset.text = "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
-        weekReset.text = "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
+        if (usage.shortRemaining >= 0) {
+            shortPercent.text = "${usage.shortRemaining}%"
+            shortBar.progress = usage.shortRemaining
+            shortReset.text = "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
+        } else {
+            renderUnavailable(shortPercent, shortBar, shortReset)
+        }
+
+        if (usage.weekRemaining >= 0) {
+            weekPercent.text = "${usage.weekRemaining}%"
+            weekBar.progress = usage.weekRemaining
+            weekReset.text = "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
+        } else {
+            renderUnavailable(weekPercent, weekBar, weekReset)
+        }
+
         updatedAt.text = "Aggiornato: ${DisplayFormat.updatedAt(usage.updatedAtMillis)}"
         planText.text = if (usage.plan == "?") "" else "Piano: ${usage.plan}"
+    }
+
+    private fun renderUnavailable(percent: TextView, bar: ProgressBar, reset: TextView) {
+        percent.text = "—"
+        bar.progress = 0
+        reset.text = "Non fornito da OpenAI"
     }
 
     private fun cardBackground(): GradientDrawable = GradientDrawable().apply {

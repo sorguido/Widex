@@ -1,83 +1,81 @@
-# Codex Limits Widget — PoC Android
+# Widex
 
-PoC volutamente piccolo per verificare una sola ipotesi:
+Android app + Home widget per visualizzare i limiti residui di Codex senza dipendere da un PC.
 
-> Un'app Android può autenticarsi tramite il device-code flow Codex e leggere
-> direttamente i limiti da `https://chatgpt.com/backend-api/wham/usage`
-> senza dipendere da un PC.
+## Stato
 
-## Cosa fa
+Il PoC iniziale ha verificato con successo il flusso Android → OpenAI device-code login → `/backend-api/wham/usage`.
 
-1. Richiede un device code a OpenAI.
-2. Apre `https://auth.openai.com/codex/device` nel browser.
-3. Completa lo scambio OAuth.
-4. Mantiene access token/account ID **solo in RAM**.
-5. Esegue `GET /backend-api/wham/usage`.
-6. Se riceve HTTP 200:
-   - calcola `100 - used_percent`;
-   - salva **solo le percentuali non sensibili**;
-   - aggiorna un widget Android.
-7. Se riceve 401/403:
-   - il PoC si ferma;
-   - non tenta scraping, cookie extraction o altri workaround.
+La versione 0.2 aggiunge:
 
-## Perché i token NON vengono salvati
+- nome app **Widex**;
+- login OpenAI richiesto solo al primo collegamento o quando la sessione viene invalidata;
+- token conservati cifrati con **Android Keystore + AES/GCM**;
+- refresh automatico dell'access token tramite refresh token;
+- dashboard con barre per **5 HOURS** e **WEEK**;
+- reset mostrati in data/ora leggibile;
+- pulsante **Aggiorna** per refresh live in app;
+- Home widget con le stesse due barre;
+- pulsante ↻ nel widget per refresh live;
+- aggiornamento periodico ogni circa 60 minuti tramite `JobScheduler` nativo Android;
+- nessuna dipendenza runtime esterna.
 
-Questo non è ancora il prodotto finale. Prima dimostriamo che l'accesso diretto
-Android → usage funziona realmente con l'account. Solo dopo ha senso aggiungere:
+## Comportamento del login
 
-- Android Keystore + AES/GCM;
-- refresh token;
-- aggiornamento periodico;
-- refresh al tap sul widget;
-- gestione logout/revoca;
-- UX definitiva.
+Al primo avvio Widex mostra `Collega account OpenAI`, apre il normale device-code flow di Codex nel browser e attende l'autorizzazione.
+
+Dopo il login le credenziali vengono cifrate localmente. Alle aperture successive l'app mostra direttamente i limiti e rinnova l'access token in background quando necessario.
+
+Se OpenAI invalida il refresh token, Widex elimina le credenziali locali non più utilizzabili e torna alla schermata di collegamento.
+
+## Widget
+
+Il widget Home mostra:
+
+```text
+WIDEX · CODEX                 ↻
+5 HOURS                    78%
+████████████████░░░░
+Reset 01:34
+
+WEEK                       43%
+█████████░░░░░░░░░░░
+Reset lun 14 set · 18:42
+
+                         Agg. 23:48
+```
+
+Il tap su `↻` richiede un aggiornamento live. Il tap sul resto del widget apre Widex.
+
+L'aggiornamento orario è intenzionalmente non esatto: Android può differirlo per risparmio energetico/Doze. Il refresh manuale resta disponibile in ogni momento.
 
 ## Build
 
-Il progetto è una base Android Studio, senza dipendenze HTTP esterne.
+Configurazione attuale:
 
-Configurazione:
 - Kotlin
 - minSdk 26
 - target/compile SDK 35
+- Java/Kotlin JVM target 17
 - Android Gradle Plugin 8.7.3
 - Kotlin plugin 2.0.21
 
-Aprire la cartella in Android Studio e fare Sync/Build. Se Android Studio propone
-un aggiornamento compatibile di Gradle/AGP, accettarlo solo se necessario.
+Aprire il progetto in Android Studio e usare:
 
-## Test
+`Build → Generate App Bundles or APKs → Build APK(s)`
 
-1. Installa l'APK debug.
-2. Apri **Codex Limits PoC**.
-3. Tocca `1. Richiedi codice OpenAI`.
-4. Tocca `2. Apri pagina OpenAI`.
-5. Accedi a OpenAI e inserisci il codice.
-6. Torna nell'app.
-7. Tocca `3. Completa login e leggi limiti`.
+APK debug:
 
-### Esito A — SUCCESSO
+`app/build/outputs/apk/debug/app-debug.apk`
 
-Vedrai:
-- piano;
-- percentuale usata;
-- percentuale residua;
-- reset epoch;
-- widget aggiornato.
+## Sicurezza
 
-A quel punto si può passare alla fase 2 produttiva.
+- username/password/2FA restano nel browser OpenAI;
+- access token, refresh token e account ID sono cifrati prima della persistenza;
+- la chiave AES è gestita da Android Keystore e non viene salvata nel repository;
+- le percentuali e gli orari di reset vengono salvati separatamente come cache non sensibile;
+- nessun PC, server domestico o backend personale è richiesto.
 
-### Esito B — HTTP 401/403 su USAGE
+## Nota di compatibilità
 
-È un risultato utile: significa che, con l'autenticazione ottenuta dal device flow,
-l'endpoint web non accetta la richiesta diretta dal PoC. In tal caso NON ha senso
-investire nel widget definitivo finché non scegliamo un'altra superficie supportata.
-
-## Sicurezza del PoC
-
-- nessuna password passa nell'app;
-- nessun access/refresh/id token viene salvato;
-- nessun token viene mostrato nei log UI;
-- nessun PC o server personale è richiesto;
-- le sole percentuali residue vengono persistite localmente.
+Widex usa il device-code flow e l'endpoint usage attualmente utilizzati dall'ecosistema Codex. `/backend-api/wham/usage` non è una API pubblica garantita per applicazioni terze: un cambiamento lato OpenAI potrebbe richiedere un aggiornamento dell'app.

@@ -11,8 +11,8 @@ android {
         applicationId = "it.poc.codexlimits"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1-poc"
+        versionCode = 2
+        versionName = "0.2.0"
     }
 
     compileOptions {
@@ -26,5 +26,5 @@ android {
 }
 
 dependencies {
-    // PoC intenzionalmente senza librerie HTTP/JSON/crypto esterne.
+    // Nessuna dipendenza runtime esterna: HTTP, JSON, Keystore e scheduling sono API Android/JDK.
 }

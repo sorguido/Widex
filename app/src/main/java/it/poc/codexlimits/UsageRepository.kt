@@ -25,7 +25,7 @@ object UsageRepository {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val shortRemaining = prefs.getInt("short_remaining", -1)
         val weekRemaining = prefs.getInt("week_remaining", -1)
-        if (shortRemaining < 0 || weekRemaining < 0) return null
+        if (shortRemaining < 0 && weekRemaining < 0) return null
 
         return CachedUsage(
             plan = prefs.getString("plan", "?") ?: "?",
@@ -51,6 +51,10 @@ object UsageRepository {
                 if (error.statusCode != 401) throw error
                 token = refreshToken(context, token)
                 OpenAiClient.fetchUsage(token.accessToken, token.accountId)
+            }
+
+            if (usage.shortRemaining < 0 && usage.weekRemaining < 0) {
+                return RefreshResult.Error("OpenAI non ha restituito nessuna finestra di limite utilizzabile")
             }
 
             val cached = CachedUsage(

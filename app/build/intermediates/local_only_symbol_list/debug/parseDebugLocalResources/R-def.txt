@@ -1,0 +1,11 @@
+R_DEF: Internal format may change without notice
+local
+id widget_root
+id widget_short
+id widget_title
+id widget_updated
+id widget_week
+layout codex_widget
+string app_name
+style AppTheme
+xml codex_widget_info

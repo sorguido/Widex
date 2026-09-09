@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "it.poc.codexlimits.app-debug-4:/layout_codex_widget.xml.flat",
+        "source": "it.poc.codexlimits.app-main-6:/layout/codex_widget.xml"
+    },
+    {
+        "merged": "it.poc.codexlimits.app-debug-4:/xml_codex_widget_info.xml.flat",
+        "source": "it.poc.codexlimits.app-main-6:/xml/codex_widget_info.xml"
+    }
+]

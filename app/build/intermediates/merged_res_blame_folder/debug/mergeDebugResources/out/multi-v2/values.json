@@ -1,0 +1,38 @@
+{
+    "logs": [
+        {
+            "outputFile": "it.poc.codexlimits.app-mergeDebugResources-2:/values/values.xml",
+            "map": [
+                {
+                    "source": "/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/res/values/styles.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "5",
+                        "endColumns": "12",
+                        "endOffsets": "264"
+                    },
+                    "to": {
+                        "startLines": "3",
+                        "startColumns": "4",
+                        "startOffsets": "109",
+                        "endLines": "6",
+                        "endColumns": "12",
+                        "endOffsets": "318"
+                    }
+                },
+                {
+                    "source": "/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/res/values/strings.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "53",
+                        "endOffsets": "104"
+                    }
+                }
+            ]
+        }
+    ]
+}

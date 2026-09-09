@@ -1,0 +1,9 @@
+it.poc.codexlimits:xml/codex_widget_info = 0x7f050000
+it.poc.codexlimits:style/AppTheme = 0x7f040000
+it.poc.codexlimits:string/app_name = 0x7f030000
+it.poc.codexlimits:id/widget_title = 0x7f010002
+it.poc.codexlimits:id/widget_updated = 0x7f010003
+it.poc.codexlimits:id/widget_short = 0x7f010001
+it.poc.codexlimits:id/widget_week = 0x7f010004
+it.poc.codexlimits:layout/codex_widget = 0x7f020000
+it.poc.codexlimits:id/widget_root = 0x7f010000

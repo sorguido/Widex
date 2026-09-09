@@ -1,0 +1,67 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="it.poc.codexlimits"
+4    android:versionCode="1"
+5    android:versionName="0.1-poc" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="26"
+9        android:targetSdkVersion="35" />
+10
+11    <uses-permission android:name="android.permission.INTERNET" />
+11-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:3:5-67
+11-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:3:22-64
+12
+13    <application
+13-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:5:5-30:19
+14        android:allowBackup="false"
+14-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:6:9-36
+15        android:debuggable="true"
+16        android:extractNativeLibs="false"
+17        android:label="Codex Limits PoC"
+17-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:7:9-41
+18        android:supportsRtl="true"
+18-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:8:9-35
+19        android:theme="@style/AppTheme" >
+19-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:9:9-40
+20        <activity
+20-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:11:9-18:20
+21            android:name="it.poc.codexlimits.MainActivity"
+21-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:12:13-41
+22            android:exported="true" >
+22-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:13:13-36
+23            <intent-filter>
+23-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:14:13-17:29
+24                <action android:name="android.intent.action.MAIN" />
+24-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:15:17-69
+24-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:15:25-66
+25
+26                <category android:name="android.intent.category.LAUNCHER" />
+26-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:16:17-77
+26-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:16:27-74
+27            </intent-filter>
+28        </activity>
+29
+30        <receiver
+30-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:20:9-29:20
+31            android:name="it.poc.codexlimits.CodexWidgetProvider"
+31-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:21:13-48
+32            android:exported="false" >
+32-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:22:13-37
+33            <intent-filter>
+33-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:23:13-25:29
+34                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+34-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:24:17-84
+34-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:24:25-81
+35            </intent-filter>
+36
+37            <meta-data
+37-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:26:13-28:61
+38                android:name="android.appwidget.provider"
+38-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:27:17-58
+39                android:resource="@xml/codex_widget_info" />
+39-->/home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:28:17-58
+40        </receiver>
+41    </application>
+42
+43</manifest>

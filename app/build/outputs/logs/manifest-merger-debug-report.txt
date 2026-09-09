@@ -1,0 +1,73 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:2:1-31:12
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:2:1-31:12
+	package
+		INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:2:11-69
+uses-permission#android.permission.INTERNET
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:3:5-67
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:3:22-64
+application
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:5:5-30:19
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:5:5-30:19
+	android:extractNativeLibs
+		INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+	android:supportsRtl
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:8:9-35
+	android:label
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:7:9-41
+	android:allowBackup
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:6:9-36
+	android:theme
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:9:9-40
+activity#it.poc.codexlimits.MainActivity
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:11:9-18:20
+	android:exported
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:13:13-36
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:12:13-41
+intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:14:13-17:29
+action#android.intent.action.MAIN
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:15:17-69
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:15:25-66
+category#android.intent.category.LAUNCHER
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:16:17-77
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:16:27-74
+receiver#it.poc.codexlimits.CodexWidgetProvider
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:20:9-29:20
+	android:exported
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:22:13-37
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:21:13-48
+intent-filter#action:name:android.appwidget.action.APPWIDGET_UPDATE
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:23:13-25:29
+action#android.appwidget.action.APPWIDGET_UPDATE
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:24:17-84
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:24:25-81
+meta-data#android.appwidget.provider
+ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:26:13-28:61
+	android:resource
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:28:17-58
+	android:name
+		ADDED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml:27:17-58
+uses-sdk
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/AndroidManifest.xml

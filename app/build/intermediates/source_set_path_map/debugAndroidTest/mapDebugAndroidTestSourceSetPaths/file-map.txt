@@ -1,0 +1,4 @@
+it.poc.codexlimits.test.app-androidTest-0 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/generated/res/resValues/androidTest/debug
+it.poc.codexlimits.test.app-mergeDebugAndroidTestResources-1 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/merged.dir
+it.poc.codexlimits.test.app-mergeDebugAndroidTestResources-2 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/intermediates/incremental/debugAndroidTest/mergeDebugAndroidTestResources/stripped.dir
+it.poc.codexlimits.test.app-debugAndroidTest-3 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/intermediates/merged_res/debugAndroidTest/mergeDebugAndroidTestResources

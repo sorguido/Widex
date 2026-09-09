@@ -1,0 +1,7 @@
+it.poc.codexlimits.app-pngs-0 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/generated/res/pngs/debug
+it.poc.codexlimits.app-resValues-1 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/generated/res/resValues/debug
+it.poc.codexlimits.app-packageDebugResources-2 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/intermediates/incremental/debug/packageDebugResources/merged.dir
+it.poc.codexlimits.app-packageDebugResources-3 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/intermediates/incremental/debug/packageDebugResources/stripped.dir
+it.poc.codexlimits.app-debug-4 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/build/intermediates/merged_res/debug/mergeDebugResources
+it.poc.codexlimits.app-debug-5 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/debug/res
+it.poc.codexlimits.app-main-6 /home/guido/Repository/Widex/CodexLimitsWidgetPoC/app/src/main/res

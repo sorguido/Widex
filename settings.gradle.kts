@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "CodexLimitsWidgetPoC"
+rootProject.name = "Widex"
 include(":app")

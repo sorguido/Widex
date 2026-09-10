@@ -1,4 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Widex</string>
+    <string name="widex_title">WIDEX</string>
+    <string name="codex_limits">CODEX LIMITS</string>
+    <string name="widget_title">WIDEX · CODEX</string>
+    <string name="five_hours">5 HOURS</string>
+    <string name="week">WEEK</string>
+
+    <string name="connect_account_title">Connect your OpenAI account</string>
+    <string name="connect_account_description">Sign in once. Credentials are stored encrypted using Android Keystore.</string>
+    <string name="connect_account_button">Connect OpenAI account</string>
+    <string name="requesting_code">Requesting a code from OpenAI…</string>
+    <string name="enter_code_wait">Enter this code on the OpenAI page. Waiting for authorization…</string>
+    <string name="authorization_timeout">Authorization was not completed within 15 minutes.</string>
+    <string name="session_not_accepted">The session was not accepted. Connect your account again.</string>
+    <string name="session_expired">Session expired. Connect your OpenAI account again.</string>
+    <string name="error_with_message">Error: %1$s</string>
+
+    <string name="update">Update</string>
+    <string name="updating">Updating…</string>
+    <string name="update_failed">Update failed: %1$s</string>
+    <string name="updated_at">Updated: %1$s</string>
+    <string name="plan">Plan: %1$s</string>
+    <string name="reset">Reset %1$s</string>
+    <string name="reset_unavailable">Reset —</string>
+    <string name="not_provided">Not provided by OpenAI</string>
+
+    <string name="access_required">Sign-in required</string>
+    <string name="open_widex">Open Widex</string>
+    <string name="tap_refresh">Tap ↻</string>
+    <string name="tap_update">Tap Update</string>
+    <string name="widget_updating">Updating…</string>
+    <string name="widget_updated">Updated %1$s</string>
 </resources>

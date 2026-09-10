@@ -54,7 +54,9 @@ object UsageRepository {
             }
 
             if (usage.shortRemaining < 0 && usage.weekRemaining < 0) {
-                return RefreshResult.Error("OpenAI non ha restituito nessuna finestra di limite utilizzabile")
+                return RefreshResult.Error(
+                    "OpenAI did not return any usable rate-limit window"
+                )
             }
 
             val cached = CachedUsage(
@@ -74,7 +76,7 @@ object UsageRepository {
                     return RefreshResult.AuthRequired
                 }
             }
-            return RefreshResult.Error(error.message ?: "Errore HTTP")
+            return RefreshResult.Error(error.message ?: "HTTP error")
         } catch (error: Throwable) {
             return RefreshResult.Error(error.message ?: error::class.java.simpleName)
         }

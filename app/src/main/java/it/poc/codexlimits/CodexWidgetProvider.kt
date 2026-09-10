@@ -32,23 +32,42 @@ class CodexWidgetProvider : AppWidgetProvider() {
             val usage = UsageRepository.readCached(context)
 
             if (!authenticated) {
-                setUnavailable(views, shortWindow = true, message = "Accesso richiesto")
-                setUnavailable(views, shortWindow = false, message = "Apri Widex")
+                setUnavailable(
+                    views,
+                    shortWindow = true,
+                    message = context.getString(R.string.access_required)
+                )
+                setUnavailable(
+                    views,
+                    shortWindow = false,
+                    message = context.getString(R.string.open_widex)
+                )
                 views.setTextViewText(R.id.widget_updated, "")
             } else if (usage == null) {
-                setUnavailable(views, shortWindow = true, message = "Tocca ↻")
-                setUnavailable(views, shortWindow = false, message = "Tocca ↻")
-                views.setTextViewText(R.id.widget_updated, "Tocca Aggiorna")
+                val tapRefresh = context.getString(R.string.tap_refresh)
+                setUnavailable(views, shortWindow = true, message = tapRefresh)
+                setUnavailable(views, shortWindow = false, message = tapRefresh)
+                views.setTextViewText(
+                    R.id.widget_updated,
+                    context.getString(R.string.tap_update)
+                )
             } else {
                 if (usage.shortRemaining >= 0) {
                     views.setTextViewText(R.id.widget_short_value, "${usage.shortRemaining}%")
                     views.setProgressBar(R.id.widget_short_bar, 100, usage.shortRemaining, false)
                     views.setTextViewText(
                         R.id.widget_short_reset,
-                        "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
+                        context.getString(
+                            R.string.reset,
+                            DisplayFormat.shortReset(usage.shortResetEpoch)
+                        )
                     )
                 } else {
-                    setUnavailable(views, shortWindow = true, message = "Non fornito da OpenAI")
+                    setUnavailable(
+                        views,
+                        shortWindow = true,
+                        message = context.getString(R.string.not_provided)
+                    )
                 }
 
                 if (usage.weekRemaining >= 0) {
@@ -56,15 +75,25 @@ class CodexWidgetProvider : AppWidgetProvider() {
                     views.setProgressBar(R.id.widget_week_bar, 100, usage.weekRemaining, false)
                     views.setTextViewText(
                         R.id.widget_week_reset,
-                        "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
+                        context.getString(
+                            R.string.reset,
+                            DisplayFormat.weekReset(usage.weekResetEpoch)
+                        )
                     )
                 } else {
-                    setUnavailable(views, shortWindow = false, message = "Non fornito da OpenAI")
+                    setUnavailable(
+                        views,
+                        shortWindow = false,
+                        message = context.getString(R.string.not_provided)
+                    )
                 }
 
                 views.setTextViewText(
                     R.id.widget_updated,
-                    "Agg. ${DisplayFormat.updatedAt(usage.updatedAtMillis)}"
+                    context.getString(
+                        R.string.widget_updated,
+                        DisplayFormat.updatedAt(usage.updatedAtMillis)
+                    )
                 )
             }
 
@@ -128,7 +157,10 @@ class CodexWidgetProvider : AppWidgetProvider() {
         val component = ComponentName(context, CodexWidgetProvider::class.java)
         manager.getAppWidgetIds(component).forEach { widgetId ->
             val views = RemoteViews(context.packageName, R.layout.codex_widget)
-            views.setTextViewText(R.id.widget_updated, "Aggiornamento…")
+            views.setTextViewText(
+                R.id.widget_updated,
+                context.getString(R.string.widget_updating)
+            )
             manager.partiallyUpdateAppWidget(widgetId, views)
         }
 

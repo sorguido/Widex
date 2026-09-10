@@ -17,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="WIDEX · CODEX"
+            android:text="@string/widget_title"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="13sp" />
@@ -44,7 +44,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="5 HOURS"
+            android:text="@string/five_hours"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="12sp" />
@@ -75,7 +75,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
-        android:text="Reset —"
+        android:text="@string/reset_unavailable"
         android:textColor="#B4B9BE"
         android:textSize="10sp" />
 
@@ -90,7 +90,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="WEEK"
+            android:text="@string/week"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:textSize="12sp" />
@@ -121,7 +121,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="3dp"
-        android:text="Reset —"
+        android:text="@string/reset_unavailable"
         android:textColor="#B4B9BE"
         android:textSize="10sp" />
 

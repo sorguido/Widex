@@ -11,7 +11,7 @@ android {
         applicationId = "it.poc.codexlimits"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
+        versionCode = 3
         versionName = "0.2.0"
     }
 
@@ -26,5 +26,5 @@ android {
 }
 
 dependencies {
-    // Nessuna dipendenza runtime esterna: HTTP, JSON, Keystore e scheduling sono API Android/JDK.
+    // No external runtime dependencies: HTTP, JSON, Keystore and scheduling use Android/JDK APIs.
 }

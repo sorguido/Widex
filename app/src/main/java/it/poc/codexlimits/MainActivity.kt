@@ -67,13 +67,13 @@ class MainActivity : Activity() {
         val scroll = ScrollView(this).apply { addView(root) }
 
         root.addView(TextView(this).apply {
-            text = "WIDEX"
+            text = getString(R.string.widex_title)
             setTextColor(Color.WHITE)
             textSize = 28f
             setTypeface(typeface, Typeface.BOLD)
         })
         root.addView(TextView(this).apply {
-            text = "CODEX LIMITS"
+            text = getString(R.string.codex_limits)
             setTextColor(Color.rgb(180, 185, 190))
             textSize = 14f
             letterSpacing = 0.12f
@@ -85,26 +85,29 @@ class MainActivity : Activity() {
             background = cardBackground()
             setPadding(dp(18), dp(18), dp(18), dp(18))
         }
-        root.addView(loginPanel, LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ))
+        root.addView(
+            loginPanel,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
 
         loginPanel.addView(TextView(this).apply {
-            text = "Collega il tuo account OpenAI"
+            text = getString(R.string.connect_account_title)
             setTextColor(Color.WHITE)
             textSize = 20f
             setTypeface(typeface, Typeface.BOLD)
         })
         loginPanel.addView(TextView(this).apply {
-            text = "L'accesso serve una sola volta. Le credenziali vengono conservate cifrate tramite Android Keystore."
+            text = getString(R.string.connect_account_description)
             setTextColor(Color.rgb(190, 194, 198))
             textSize = 14f
             setPadding(0, dp(8), 0, dp(16))
         })
 
         connectButton = Button(this).apply {
-            text = "Collega account OpenAI"
+            text = getString(R.string.connect_account_button)
             setOnClickListener { startDeviceLogin() }
         }
         loginPanel.addView(connectButton)
@@ -140,13 +143,13 @@ class MainActivity : Activity() {
         }
         dashboardPanel.addView(planText)
 
-        val shortBlock = createLimitBlock("5 HOURS")
+        val shortBlock = createLimitBlock(R.string.five_hours)
         shortPercent = shortBlock.percent
         shortBar = shortBlock.bar
         shortReset = shortBlock.reset
         dashboardPanel.addView(shortBlock.container)
 
-        val weekBlock = createLimitBlock("WEEK")
+        val weekBlock = createLimitBlock(R.string.week)
         weekPercent = weekBlock.percent
         weekBar = weekBlock.bar
         weekReset = weekBlock.reset
@@ -159,7 +162,7 @@ class MainActivity : Activity() {
         )
 
         updatedAt = TextView(this).apply {
-            text = "Aggiornato: —"
+            text = getString(R.string.updated_at, "—")
             setTextColor(Color.rgb(180, 185, 190))
             textSize = 13f
             gravity = Gravity.CENTER_HORIZONTAL
@@ -168,7 +171,7 @@ class MainActivity : Activity() {
         dashboardPanel.addView(updatedAt)
 
         refreshButton = Button(this).apply {
-            text = "Aggiorna"
+            text = getString(R.string.update)
             setOnClickListener { refreshLive() }
         }
         dashboardPanel.addView(refreshButton)
@@ -191,7 +194,7 @@ class MainActivity : Activity() {
         val reset: TextView
     )
 
-    private fun createLimitBlock(title: String): LimitBlock {
+    private fun createLimitBlock(titleRes: Int): LimitBlock {
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             background = cardBackground()
@@ -203,7 +206,7 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER_VERTICAL
         }
         val label = TextView(this).apply {
-            text = title
+            text = getString(titleRes)
             setTextColor(Color.WHITE)
             textSize = 16f
             setTypeface(typeface, Typeface.BOLD)
@@ -215,8 +218,17 @@ class MainActivity : Activity() {
             gravity = Gravity.END
             setTypeface(typeface, Typeface.BOLD)
         }
-        header.addView(label, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        header.addView(percent, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        header.addView(
+            label,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        )
+        header.addView(
+            percent,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
         container.addView(header)
 
         val bar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
@@ -234,7 +246,7 @@ class MainActivity : Activity() {
         )
 
         val reset = TextView(this).apply {
-            text = "Reset —"
+            text = getString(R.string.reset_unavailable)
             setTextColor(Color.rgb(180, 185, 190))
             textSize = 13f
             setPadding(0, dp(9), 0, 0)
@@ -260,7 +272,7 @@ class MainActivity : Activity() {
     private fun startDeviceLogin() {
         connectButton.isEnabled = false
         loginCode.visibility = View.GONE
-        loginStatus.text = "Richiedo il codice a OpenAI…"
+        loginStatus.text = getString(R.string.requesting_code)
 
         executor.execute {
             try {
@@ -268,7 +280,7 @@ class MainActivity : Activity() {
                 main.post {
                     loginCode.text = deviceCode.userCode
                     loginCode.visibility = View.VISIBLE
-                    loginStatus.text = "Inserisci questo codice nella pagina OpenAI. Attendo l'autorizzazione…"
+                    loginStatus.text = getString(R.string.enter_code_wait)
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(OpenAiClient.VERIFY_URL)))
                 }
 
@@ -278,7 +290,7 @@ class MainActivity : Activity() {
                     Thread.sleep(deviceCode.intervalSeconds * 1000L)
                     authResponse = OpenAiClient.pollAuthorization(deviceCode)
                 }
-                if (authResponse == null) error("Autorizzazione non completata entro 15 minuti")
+                if (authResponse == null) error(getString(R.string.authorization_timeout))
 
                 val token = OpenAiClient.exchangeAuthorizationCode(authResponse)
                 SecureAuthStore.save(this, token)
@@ -292,12 +304,14 @@ class MainActivity : Activity() {
                             renderUsage(result.usage)
                             dashboardStatus.text = ""
                         }
+
                         UsageRepository.RefreshResult.AuthRequired -> {
-                            showLogin("La sessione non è stata accettata. Riprova il collegamento.")
+                            showLogin(getString(R.string.session_not_accepted))
                         }
+
                         is UsageRepository.RefreshResult.Error -> {
                             renderUsage(UsageRepository.readCached(this))
-                            dashboardStatus.text = result.message
+                            dashboardStatus.text = getString(R.string.update_failed, result.message)
                         }
                     }
                     CodexWidgetProvider.updateAll(this)
@@ -305,7 +319,10 @@ class MainActivity : Activity() {
             } catch (error: Throwable) {
                 main.post {
                     connectButton.isEnabled = true
-                    loginStatus.text = "Errore: ${error.message ?: error::class.java.simpleName}"
+                    loginStatus.text = getString(
+                        R.string.error_with_message,
+                        error.message ?: error::class.java.simpleName
+                    )
                 }
             }
         }
@@ -313,7 +330,7 @@ class MainActivity : Activity() {
 
     private fun refreshLive() {
         refreshButton.isEnabled = false
-        dashboardStatus.text = "Aggiornamento…"
+        dashboardStatus.text = getString(R.string.updating)
 
         executor.execute {
             val result = UsageRepository.refresh(this)
@@ -325,13 +342,15 @@ class MainActivity : Activity() {
                         dashboardStatus.text = ""
                         CodexWidgetProvider.updateAll(this)
                     }
+
                     UsageRepository.RefreshResult.AuthRequired -> {
                         RefreshScheduler.cancel(this)
-                        showLogin("Sessione scaduta. Collega nuovamente l'account OpenAI.")
+                        showLogin(getString(R.string.session_expired))
                     }
+
                     is UsageRepository.RefreshResult.Error -> {
                         renderUsage(UsageRepository.readCached(this))
-                        dashboardStatus.text = "Aggiornamento non riuscito: ${result.message}"
+                        dashboardStatus.text = getString(R.string.update_failed, result.message)
                     }
                 }
             }
@@ -342,7 +361,7 @@ class MainActivity : Activity() {
         if (usage == null) {
             renderUnavailable(shortPercent, shortBar, shortReset)
             renderUnavailable(weekPercent, weekBar, weekReset)
-            updatedAt.text = "Aggiornato: —"
+            updatedAt.text = getString(R.string.updated_at, "—")
             planText.text = ""
             return
         }
@@ -350,7 +369,10 @@ class MainActivity : Activity() {
         if (usage.shortRemaining >= 0) {
             shortPercent.text = "${usage.shortRemaining}%"
             shortBar.progress = usage.shortRemaining
-            shortReset.text = "Reset ${DisplayFormat.shortReset(usage.shortResetEpoch)}"
+            shortReset.text = getString(
+                R.string.reset,
+                DisplayFormat.shortReset(usage.shortResetEpoch)
+            )
         } else {
             renderUnavailable(shortPercent, shortBar, shortReset)
         }
@@ -358,19 +380,25 @@ class MainActivity : Activity() {
         if (usage.weekRemaining >= 0) {
             weekPercent.text = "${usage.weekRemaining}%"
             weekBar.progress = usage.weekRemaining
-            weekReset.text = "Reset ${DisplayFormat.weekReset(usage.weekResetEpoch)}"
+            weekReset.text = getString(
+                R.string.reset,
+                DisplayFormat.weekReset(usage.weekResetEpoch)
+            )
         } else {
             renderUnavailable(weekPercent, weekBar, weekReset)
         }
 
-        updatedAt.text = "Aggiornato: ${DisplayFormat.updatedAt(usage.updatedAtMillis)}"
-        planText.text = if (usage.plan == "?") "" else "Piano: ${usage.plan}"
+        updatedAt.text = getString(
+            R.string.updated_at,
+            DisplayFormat.updatedAt(usage.updatedAtMillis)
+        )
+        planText.text = if (usage.plan == "?") "" else getString(R.string.plan, usage.plan)
     }
 
     private fun renderUnavailable(percent: TextView, bar: ProgressBar, reset: TextView) {
         percent.text = "—"
         bar.progress = 0
-        reset.text = "Non fornito da OpenAI"
+        reset.text = getString(R.string.not_provided)
     }
 
     private fun cardBackground(): GradientDrawable = GradientDrawable().apply {

@@ -8,13 +8,13 @@
     <string name="week">WEEK</string>
 
     <string name="connect_account_title">Collega il tuo account OpenAI</string>
-    <string name="connect_account_description">L'accesso serve una sola volta. Le credenziali vengono conservate cifrate tramite Android Keystore.</string>
+    <string name="connect_account_description">L\'accesso serve una sola volta. Le credenziali vengono conservate cifrate tramite Android Keystore.</string>
     <string name="connect_account_button">Collega account OpenAI</string>
     <string name="requesting_code">Richiedo il codice a OpenAI…</string>
-    <string name="enter_code_wait">Inserisci questo codice nella pagina OpenAI. Attendo l'autorizzazione…</string>
+    <string name="enter_code_wait">Inserisci questo codice nella pagina OpenAI. Attendo l\'autorizzazione…</string>
     <string name="authorization_timeout">Autorizzazione non completata entro 15 minuti.</string>
     <string name="session_not_accepted">La sessione non è stata accettata. Riprova il collegamento.</string>
-    <string name="session_expired">Sessione scaduta. Collega nuovamente l'account OpenAI.</string>
+    <string name="session_expired">Sessione scaduta. Collega nuovamente l\'account OpenAI.</string>
     <string name="error_with_message">Errore: %1$s</string>
 
     <string name="update">Aggiorna</string>

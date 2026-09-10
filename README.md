@@ -105,4 +105,4 @@ Widex is an independent open-source project and is not affiliated with or endors
 
 Copyright (C) 2026 Guido Sorarù
 
-Widex is free software licensed under the **GNU General Public License version 3 only** (`GPL-3.0-only`). See [LICENSE](LICENSE) for the full license text.
+Widex is free software licensed under the **GNU General Public License version 3 or any later version** (`GPL-3.0-or-later`). See [LICENSE](LICENSE) for the full license text.

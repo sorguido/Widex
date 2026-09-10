@@ -20,6 +20,12 @@ La versione 0.2 aggiunge:
 - aggiornamento periodico ogni circa 60 minuti tramite `JobScheduler` nativo Android;
 - nessuna dipendenza runtime esterna.
 
+## Screenshots
+
+| App | Widget Home |
+| --- | --- |
+| <img src="screenshots/app.jpeg" alt="Widex app" width="320"> | <img src="screenshots/widget.jpeg" alt="Widex Home widget" width="320"> |
+
 ## Comportamento del login
 
 Al primo avvio Widex mostra `Collega account OpenAI`, apre il normale device-code flow di Codex nel browser e attende l'autorizzazione.

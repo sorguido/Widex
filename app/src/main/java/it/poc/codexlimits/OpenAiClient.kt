@@ -72,7 +72,11 @@ object OpenAiClient {
         return when {
             response.status in 200..299 -> JSONObject(response.body)
             response.status == 403 || response.status == 404 -> null
-            else -> throw HttpException(response.status, safe(response.body), "Device authorization")
+            else -> throw HttpException(
+                response.status,
+                safe(response.body),
+                "Device authorization"
+            )
         }
     }
 
@@ -121,20 +125,20 @@ object OpenAiClient {
 
         val root = JSONObject(response.body)
         val rate = root.optJSONObject("rate_limit")
-            ?: error("La risposta usage non contiene rate_limit")
+            ?: error("Usage response does not contain rate_limit")
 
         val primaryJson = rate.optJSONObject("primary_window")
         val secondaryJson = rate.optJSONObject("secondary_window")
         if (primaryJson == null && secondaryJson == null) {
-            error("La risposta usage non contiene finestre di limite")
+            error("Usage response does not contain any rate-limit windows")
         }
 
         val primary = primaryJson?.let(::parseUsageWindow)
         val secondary = secondaryJson?.let(::parseUsageWindow)
         val windows = listOfNotNull(primary, secondary)
 
-        // Non assumiamo che primary significhi sempre 5h e secondary sempre settimana.
-        // Il backend espone la durata: la usiamo per identificare la finestra corretta.
+        // Do not assume that primary always means 5h and secondary always means a week.
+        // The backend exposes each duration, so identify the windows by their duration.
         var shortWindow = windows
             .filter { it.windowSeconds in 1..(24L * 60L * 60L) }
             .minByOrNull { kotlin.math.abs(it.windowSeconds - FIVE_HOURS_SECONDS) }
@@ -142,7 +146,7 @@ object OpenAiClient {
             .filter { it.windowSeconds >= 2L * 24L * 60L * 60L }
             .minByOrNull { kotlin.math.abs(it.windowSeconds - ONE_WEEK_SECONDS) }
 
-        // Compatibilità difensiva se il backend omette limit_window_seconds.
+        // Defensive fallback if the backend omits limit_window_seconds.
         if (shortWindow == null && weekWindow == null) {
             shortWindow = primary
             weekWindow = secondary
@@ -170,7 +174,7 @@ object OpenAiClient {
             json.has("usedPercent") -> json.optDouble("usedPercent", -1.0)
             else -> -1.0
         }
-        require(used >= 0.0) { "Percentuale usage non valida" }
+        require(used >= 0.0) { "Invalid usage percentage" }
 
         val windowSeconds = json.optLong("limit_window_seconds", 0L)
         val resetEpoch = json.optLong("reset_at", 0L)
@@ -181,17 +185,20 @@ object OpenAiClient {
         )
     }
 
-    private fun parseTokenResponse(json: JSONObject, previousRefreshToken: String?): TokenBundle {
+    private fun parseTokenResponse(
+        json: JSONObject,
+        previousRefreshToken: String?
+    ): TokenBundle {
         val accessToken = json.getString("access_token")
         val refreshToken = json.optString("refresh_token").ifBlank {
             previousRefreshToken.orEmpty()
         }
-        require(refreshToken.isNotBlank()) { "OpenAI non ha restituito un refresh token" }
+        require(refreshToken.isNotBlank()) { "OpenAI did not return a refresh token" }
 
         val idToken = json.optString("id_token", "")
         val accountId = extractAccountId(idToken)
             ?: extractAccountId(accessToken)
-            ?: error("chatgpt_account_id non trovato nel token")
+            ?: error("chatgpt_account_id was not found in the token")
 
         val expiresIn = json.optString("expires_in", "3600").toLongOrNull() ?: 3600L
         return TokenBundle(

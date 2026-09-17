@@ -42,11 +42,13 @@ class CodexWidgetProvider : AppWidgetProvider() {
                     shortWindow = false,
                     message = context.getString(R.string.open_widex)
                 )
+                views.setTextViewText(R.id.widget_reset_credits_value, "—")
                 views.setTextViewText(R.id.widget_updated, "")
             } else if (usage == null) {
                 val tapRefresh = context.getString(R.string.tap_refresh)
                 setUnavailable(views, shortWindow = true, message = tapRefresh)
                 setUnavailable(views, shortWindow = false, message = tapRefresh)
+                views.setTextViewText(R.id.widget_reset_credits_value, "—")
                 views.setTextViewText(
                     R.id.widget_updated,
                     context.getString(R.string.tap_update)
@@ -88,6 +90,8 @@ class CodexWidgetProvider : AppWidgetProvider() {
                     )
                 }
 
+                setResetCredits(context, views, usage)
+
                 views.setTextViewText(
                     R.id.widget_updated,
                     context.getString(
@@ -118,6 +122,35 @@ class CodexWidgetProvider : AppWidgetProvider() {
             views.setOnClickPendingIntent(R.id.widget_refresh, refreshPendingIntent)
 
             manager.updateAppWidget(widgetId, views)
+        }
+
+        private fun setResetCredits(
+            context: Context,
+            views: RemoteViews,
+            usage: UsageRepository.CachedUsage
+        ) {
+            val count = usage.resetCreditsAvailable
+            val text = when {
+                count < 0 -> "—"
+                count == 0 -> context.getString(R.string.reset_credits_none)
+                else -> {
+                    val countText = context.resources.getQuantityString(
+                        R.plurals.reset_credits_available,
+                        count,
+                        count
+                    )
+                    val firstExpiry = usage.resetCreditExpiries.minOrNull()
+                    if (firstExpiry != null) {
+                        "$countText · ${context.getString(
+                            R.string.first_expiry,
+                            DisplayFormat.resetCreditShort(firstExpiry)
+                        )}"
+                    } else {
+                        countText
+                    }
+                }
+            }
+            views.setTextViewText(R.id.widget_reset_credits_value, text)
         }
 
         private fun setUnavailable(views: RemoteViews, shortWindow: Boolean, message: String) {
@@ -167,7 +200,10 @@ class CodexWidgetProvider : AppWidgetProvider() {
         val pendingResult = goAsync()
         executor.execute {
             try {
-                UsageRepository.refresh(context.applicationContext)
+                UsageRepository.refresh(
+                    context.applicationContext,
+                    forceResetCredits = true
+                )
                 updateAll(context.applicationContext)
             } finally {
                 pendingResult.finish()

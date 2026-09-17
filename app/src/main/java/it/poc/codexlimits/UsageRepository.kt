@@ -5,6 +5,7 @@ import android.content.Context
 object UsageRepository {
     private const val PREFS = "codex_stats"
     private const val REFRESH_EARLY_MS = 60_000L
+    private const val RESET_CREDITS_REFRESH_MS = 6L * 60L * 60L * 1000L
 
     sealed class RefreshResult {
         data class Success(val usage: CachedUsage) : RefreshResult()
@@ -18,7 +19,16 @@ object UsageRepository {
         val weekRemaining: Int,
         val shortResetEpoch: Long,
         val weekResetEpoch: Long,
+        val resetCreditsAvailable: Int,
+        val resetCreditExpiries: List<Long>,
+        val resetCreditsCheckedAtMillis: Long,
         val updatedAtMillis: Long
+    )
+
+    private data class ResetCreditsState(
+        val availableCount: Int,
+        val expiries: List<Long>,
+        val checkedAtMillis: Long
     )
 
     fun readCached(context: Context): CachedUsage? {
@@ -33,12 +43,18 @@ object UsageRepository {
             weekRemaining = weekRemaining,
             shortResetEpoch = prefs.getLong("short_reset", 0L),
             weekResetEpoch = prefs.getLong("week_reset", 0L),
+            resetCreditsAvailable = prefs.getInt("reset_credits_available", -1),
+            resetCreditExpiries = parseExpiries(
+                prefs.getString("reset_credit_expiries", "").orEmpty()
+            ),
+            resetCreditsCheckedAtMillis = prefs.getLong("reset_credits_checked_at", 0L),
             updatedAtMillis = prefs.getLong("updated_at", 0L)
         )
     }
 
-    fun refresh(context: Context): RefreshResult {
+    fun refresh(context: Context, forceResetCredits: Boolean = false): RefreshResult {
         var token = SecureAuthStore.load(context) ?: return RefreshResult.AuthRequired
+        val previous = readCached(context)
 
         try {
             if (token.expiresAtMillis <= System.currentTimeMillis() + REFRESH_EARLY_MS) {
@@ -59,12 +75,21 @@ object UsageRepository {
                 )
             }
 
+            val resetCredits = resolveResetCredits(
+                token = token,
+                previous = previous,
+                force = forceResetCredits
+            )
+
             val cached = CachedUsage(
                 plan = usage.plan,
                 shortRemaining = usage.shortRemaining,
                 weekRemaining = usage.weekRemaining,
                 shortResetEpoch = usage.shortResetEpoch,
                 weekResetEpoch = usage.weekResetEpoch,
+                resetCreditsAvailable = resetCredits.availableCount,
+                resetCreditExpiries = resetCredits.expiries,
+                resetCreditsCheckedAtMillis = resetCredits.checkedAtMillis,
                 updatedAtMillis = System.currentTimeMillis()
             )
             saveCached(context, cached)
@@ -90,6 +115,42 @@ object UsageRepository {
             .apply()
     }
 
+    private fun resolveResetCredits(
+        token: OpenAiClient.TokenBundle,
+        previous: CachedUsage?,
+        force: Boolean
+    ): ResetCreditsState {
+        val now = System.currentTimeMillis()
+        val previousCheckedAt = previous?.resetCreditsCheckedAtMillis ?: 0L
+        val due = force || previousCheckedAt <= 0L ||
+            now - previousCheckedAt >= RESET_CREDITS_REFRESH_MS
+
+        if (!due) {
+            return ResetCreditsState(
+                availableCount = previous?.resetCreditsAvailable ?: -1,
+                expiries = previous?.resetCreditExpiries.orEmpty(),
+                checkedAtMillis = previousCheckedAt
+            )
+        }
+
+        val live = ResetCreditsClient.fetch(token.accessToken, token.accountId)
+        if (live != null) {
+            return ResetCreditsState(
+                availableCount = live.availableCount,
+                expiries = live.expiries,
+                checkedAtMillis = now
+            )
+        }
+
+        // The reset endpoint is optional. Preserve the last known state on transient
+        // failures/429s and retry on the next scheduled window or forced refresh.
+        return ResetCreditsState(
+            availableCount = previous?.resetCreditsAvailable ?: -1,
+            expiries = previous?.resetCreditExpiries.orEmpty(),
+            checkedAtMillis = now
+        )
+    }
+
     private fun refreshToken(
         context: Context,
         current: OpenAiClient.TokenBundle
@@ -107,7 +168,19 @@ object UsageRepository {
             .putInt("week_remaining", usage.weekRemaining)
             .putLong("short_reset", usage.shortResetEpoch)
             .putLong("week_reset", usage.weekResetEpoch)
+            .putInt("reset_credits_available", usage.resetCreditsAvailable)
+            .putString(
+                "reset_credit_expiries",
+                usage.resetCreditExpiries.joinToString(",")
+            )
+            .putLong("reset_credits_checked_at", usage.resetCreditsCheckedAtMillis)
             .putLong("updated_at", usage.updatedAtMillis)
             .apply()
     }
+
+    private fun parseExpiries(raw: String): List<Long> = raw
+        .split(',')
+        .mapNotNull { it.trim().toLongOrNull() }
+        .filter { it > 0L }
+        .sorted()
 }

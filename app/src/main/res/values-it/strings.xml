@@ -6,6 +6,7 @@
     <string name="widget_title">WIDEX · CODEX</string>
     <string name="five_hours">5 HOURS</string>
     <string name="week">WEEK</string>
+    <string name="reset_credits_label">RESET</string>
 
     <string name="connect_account_title">Collega il tuo account OpenAI</string>
     <string name="connect_account_description">L\'accesso serve una sola volta. Le credenziali vengono conservate cifrate tramite Android Keystore.</string>
@@ -25,6 +26,16 @@
     <string name="reset">Reset %1$s</string>
     <string name="reset_unavailable">Reset —</string>
     <string name="not_provided">Non fornito da OpenAI</string>
+
+    <string name="reset_credits_title">RESET DISPONIBILI</string>
+    <string name="reset_credits_none">Nessuno disponibile</string>
+    <string name="first_expiry">prima scad. %1$s</string>
+    <string name="reset_credit_detail">Reset %1$d · scade %2$s</string>
+    <string name="reset_credit_missing_expiries">%1$d data/e di scadenza non fornita/e</string>
+    <plurals name="reset_credits_available">
+        <item quantity="one">%1$d disponibile</item>
+        <item quantity="other">%1$d disponibili</item>
+    </plurals>
 
     <string name="access_required">Accesso richiesto</string>
     <string name="open_widex">Apri Widex</string>

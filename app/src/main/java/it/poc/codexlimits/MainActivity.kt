@@ -34,6 +34,8 @@ class MainActivity : Activity() {
     private lateinit var weekBar: ProgressBar
     private lateinit var shortReset: TextView
     private lateinit var weekReset: TextView
+    private lateinit var resetCreditsCount: TextView
+    private lateinit var resetCreditsDetails: TextView
     private lateinit var updatedAt: TextView
     private lateinit var planText: TextView
     private lateinit var refreshButton: Button
@@ -161,6 +163,17 @@ class MainActivity : Activity() {
             ).apply { topMargin = dp(12) }
         )
 
+        val resetCreditsBlock = createResetCreditsBlock()
+        resetCreditsCount = resetCreditsBlock.count
+        resetCreditsDetails = resetCreditsBlock.details
+        dashboardPanel.addView(
+            resetCreditsBlock.container,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply { topMargin = dp(12) }
+        )
+
         updatedAt = TextView(this).apply {
             text = getString(R.string.updated_at, "—")
             setTextColor(Color.rgb(180, 185, 190))
@@ -192,6 +205,12 @@ class MainActivity : Activity() {
         val percent: TextView,
         val bar: ProgressBar,
         val reset: TextView
+    )
+
+    private data class ResetCreditsBlock(
+        val container: LinearLayout,
+        val count: TextView,
+        val details: TextView
     )
 
     private fun createLimitBlock(titleRes: Int): LimitBlock {
@@ -256,6 +275,54 @@ class MainActivity : Activity() {
         return LimitBlock(container, percent, bar, reset)
     }
 
+    private fun createResetCreditsBlock(): ResetCreditsBlock {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            background = cardBackground()
+            setPadding(dp(18), dp(16), dp(18), dp(16))
+        }
+
+        val header = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        val label = TextView(this).apply {
+            text = getString(R.string.reset_credits_title)
+            setTextColor(Color.WHITE)
+            textSize = 16f
+            setTypeface(typeface, Typeface.BOLD)
+        }
+        val count = TextView(this).apply {
+            text = "—"
+            setTextColor(Color.WHITE)
+            textSize = 24f
+            gravity = Gravity.END
+            setTypeface(typeface, Typeface.BOLD)
+        }
+        header.addView(
+            label,
+            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+        )
+        header.addView(
+            count,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+        )
+        container.addView(header)
+
+        val details = TextView(this).apply {
+            text = getString(R.string.not_provided)
+            setTextColor(Color.rgb(180, 185, 190))
+            textSize = 13f
+            setPadding(0, dp(9), 0, 0)
+        }
+        container.addView(details)
+
+        return ResetCreditsBlock(container, count, details)
+    }
+
     private fun showLogin(message: String = "") {
         dashboardPanel.visibility = View.GONE
         loginPanel.visibility = View.VISIBLE
@@ -296,7 +363,7 @@ class MainActivity : Activity() {
                 SecureAuthStore.save(this, token)
                 RefreshScheduler.schedule(this)
 
-                val result = UsageRepository.refresh(this)
+                val result = UsageRepository.refresh(this, forceResetCredits = true)
                 main.post {
                     showDashboard()
                     when (result) {
@@ -333,7 +400,7 @@ class MainActivity : Activity() {
         dashboardStatus.text = getString(R.string.updating)
 
         executor.execute {
-            val result = UsageRepository.refresh(this)
+            val result = UsageRepository.refresh(this, forceResetCredits = true)
             main.post {
                 refreshButton.isEnabled = true
                 when (result) {
@@ -361,6 +428,7 @@ class MainActivity : Activity() {
         if (usage == null) {
             renderUnavailable(shortPercent, shortBar, shortReset)
             renderUnavailable(weekPercent, weekBar, weekReset)
+            renderResetCreditsUnavailable()
             updatedAt.text = getString(R.string.updated_at, "—")
             planText.text = ""
             return
@@ -388,11 +456,47 @@ class MainActivity : Activity() {
             renderUnavailable(weekPercent, weekBar, weekReset)
         }
 
+        renderResetCredits(usage)
+
         updatedAt.text = getString(
             R.string.updated_at,
             DisplayFormat.updatedAt(usage.updatedAtMillis)
         )
         planText.text = if (usage.plan == "?") "" else getString(R.string.plan, usage.plan)
+    }
+
+    private fun renderResetCredits(usage: UsageRepository.CachedUsage) {
+        val count = usage.resetCreditsAvailable
+        if (count < 0) {
+            renderResetCreditsUnavailable()
+            return
+        }
+
+        resetCreditsCount.text = count.toString()
+        if (count == 0) {
+            resetCreditsDetails.text = getString(R.string.reset_credits_none)
+            return
+        }
+
+        val knownExpiries = usage.resetCreditExpiries.sorted().take(count)
+        val lines = knownExpiries.mapIndexed { index, expiry ->
+            getString(
+                R.string.reset_credit_detail,
+                index + 1,
+                DisplayFormat.resetCreditLong(expiry)
+            )
+        }.toMutableList()
+
+        val missing = count - knownExpiries.size
+        if (missing > 0) {
+            lines.add(getString(R.string.reset_credit_missing_expiries, missing))
+        }
+        resetCreditsDetails.text = lines.joinToString("\n")
+    }
+
+    private fun renderResetCreditsUnavailable() {
+        resetCreditsCount.text = "—"
+        resetCreditsDetails.text = getString(R.string.not_provided)
     }
 
     private fun renderUnavailable(percent: TextView, bar: ProgressBar, reset: TextView) {

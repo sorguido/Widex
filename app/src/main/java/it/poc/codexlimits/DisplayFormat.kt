@@ -17,6 +17,18 @@ object DisplayFormat {
             .format(Date(epochSeconds * 1000L))
     }
 
+    fun resetCreditShort(epochSeconds: Long): String {
+        if (epochSeconds <= 0L) return "—"
+        return SimpleDateFormat("dd/MM", Locale.getDefault())
+            .format(Date(epochSeconds * 1000L))
+    }
+
+    fun resetCreditLong(epochSeconds: Long): String {
+        if (epochSeconds <= 0L) return "—"
+        return SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            .format(Date(epochSeconds * 1000L))
+    }
+
     fun updatedAt(epochMillis: Long): String {
         if (epochMillis <= 0L) return "—"
         return SimpleDateFormat("HH:mm", Locale.getDefault())
